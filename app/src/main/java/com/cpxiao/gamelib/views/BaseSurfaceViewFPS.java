@@ -19,9 +19,11 @@ public abstract class BaseSurfaceViewFPS extends BaseSurfaceView implements Runn
     protected boolean isRunning = false;
 
     /**
-     * 设置FPS，默认为30
+     * 设置FPS，默认为60
      */
     protected int mFPS = 60;
+
+    protected long mFrame = 0;
 
     public BaseSurfaceViewFPS(Context context) {
         super(context);
@@ -59,6 +61,7 @@ public abstract class BaseSurfaceViewFPS extends BaseSurfaceView implements Runn
                 int deltaTime = 1000 / mFPS;
 
                 long start = System.currentTimeMillis();
+                mFrame++;
                 myDraw();
                 timingLogic();
                 long end = System.currentTimeMillis();

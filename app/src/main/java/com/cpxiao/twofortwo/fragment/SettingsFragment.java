@@ -1,19 +1,16 @@
 package com.cpxiao.twofortwo.fragment;
 
-import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.cpxiao.R;
+import com.cpxiao.gamelib.fragment.BaseZAdsFragment;
 
 /**
  * @author cpxiao on 2017/08/23.
  */
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends BaseZAdsFragment {
 
     public static SettingsFragment newInstance(Bundle bundle) {
         SettingsFragment fragment = new SettingsFragment();
@@ -23,10 +20,14 @@ public class SettingsFragment extends Fragment {
         return fragment;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_settings, container, false);
-        return view;
+    protected void initView(View view, Bundle savedInstanceState) {
+
     }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.fragment_settings;
+    }
+
 }

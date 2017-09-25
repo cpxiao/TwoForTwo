@@ -1,14 +1,15 @@
 package com.cpxiao.twofortwo.fragment;
 
-import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.cpxiao.R;
+import com.cpxiao.androidutils.library.utils.PreferencesUtils;
+import com.cpxiao.gamelib.fragment.BaseZAdsFragment;
+import com.cpxiao.twofortwo.OnGameListener;
+import com.cpxiao.twofortwo.mode.extra.Extra;
 import com.cpxiao.twofortwo.mode.extra.GameMode;
 import com.cpxiao.twofortwo.view.GameView;
 
@@ -16,10 +17,11 @@ import com.cpxiao.twofortwo.view.GameView;
  * @author cpxiao on 2017/08/23.
  */
 
-public class GameFragment extends Fragment {
+public class GameFragment extends BaseZAdsFragment {
 
-    private int mCountX = GameMode.COUNT_XY_DEFAULT;
-    private int mCountY = GameMode.COUNT_XY_DEFAULT;
+    private int mMode = GameMode.DEFAULT[0];
+    private int mCountX = GameMode.DEFAULT[1];
+    private int mCountY = GameMode.DEFAULT[2];
 
     public static GameFragment newInstance(Bundle bundle) {
         GameFragment fragment = new GameFragment();
@@ -29,29 +31,34 @@ public class GameFragment extends Fragment {
         return fragment;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_game, container, false);
+    protected void initView(View view, Bundle savedInstanceState) {
         Bundle bundle;
-        //        if (savedInstanceState != null) {
-        //            bundle = savedInstanceState;
-        //        } else {
-        //            bundle = getArguments();
-        //        }
         bundle = getArguments();
         if (bundle != null) {
-            mCountX = bundle.getInt(GameMode.MODE_X, GameMode.COUNT_XY_DEFAULT);
-            mCountY = bundle.getInt(GameMode.MODE_Y, GameMode.COUNT_XY_DEFAULT);
+            mMode = bundle.getInt(GameMode.MODE, GameMode.DEFAULT[0]);
+            mCountX = bundle.getInt(GameMode.MODE_X, GameMode.DEFAULT[1]);
+            mCountY = bundle.getInt(GameMode.MODE_Y, GameMode.DEFAULT[2]);
         }
-
-        initWidget(view);
-        return view;
-    }
-
-    private void initWidget(View view) {
-        LinearLayout layout = (LinearLayout) view.findViewById(R.id.layout_game);
+        final LinearLayout layout = (LinearLayout) view.findViewById(R.id.layout_game);
         GameView gameView = new GameView(view.getContext(), mCountX, mCountY);
+        gameView.setOnGameListener(new OnGameListener() {
+            @Override
+            public void onScoreChange(long score) {
+                Context context = getHoldingActivity();
+                String key = Extra.Key.getBestScoreKey(mMode);
+                long bestScore = PreferencesUtils.getLong(context, key, 0);
+                if (score > bestScore) {
+                    PreferencesUtils.putLong(context, key, score);
+                }
+            }
+        });
         layout.addView(gameView);
     }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.fragment_game;
+    }
+
 }

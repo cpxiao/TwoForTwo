@@ -1,33 +1,34 @@
 package com.cpxiao.twofortwo.activity;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.LinearLayout;
 
-import com.cpxiao.R;
-import com.cpxiao.twofortwo.fragment.GameFragment;
+import com.cpxiao.gamelib.activity.BaseZAdsActivity;
+import com.cpxiao.gamelib.fragment.BaseFragment;
 import com.cpxiao.twofortwo.fragment.HomeFragment;
-import com.cpxiao.twofortwo.fragment.SettingsFragment;
 
-public class MainActivity extends AppCompatActivity {
-    private HomeFragment mHomeFragment;
-    private GameFragment mGameFragment;
-    private SettingsFragment mSettingsFragment;
-    private LinearLayout mLayoutAds;
+public class MainActivity extends BaseZAdsActivity {
+
+    @Override
+    protected BaseFragment getFirstFragment() {
+        return HomeFragment.newInstance(null);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        mHomeFragment = new HomeFragment();
-        fragmentTransaction.add(R.id.fragment_container, mHomeFragment, "HomeFragment");
-        fragmentTransaction.commit();
+//        ZAdManager.getInstance().init(getApplicationContext());
+        loadAds();
     }
 
+    private void loadAds() {
+//        initAdMobAds100("");
+//        initFbAds90("");
+//        loadZAds(ZAdPosition.POSITION_MAIN);
+    }
 
+    @Override
+    protected void onDestroy() {
+//        ZAdManager.getInstance().destroyAllPosition(this);
+        super.onDestroy();
+    }
 }

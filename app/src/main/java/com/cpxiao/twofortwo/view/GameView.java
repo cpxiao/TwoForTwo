@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import com.cpxiao.R;
 import com.cpxiao.androidutils.library.utils.ThreadUtils;
 import com.cpxiao.gamelib.views.BaseSurfaceViewFPS;
+import com.cpxiao.twofortwo.OnGameListener;
 import com.cpxiao.twofortwo.mode.Dot;
 import com.cpxiao.twofortwo.mode.extra.ColorExtra;
 import com.cpxiao.twofortwo.mode.extra.GameMode;
@@ -33,8 +34,8 @@ import static com.cpxiao.twofortwo.mode.extra.ColorExtra.getRandomColor;
 public class GameView extends BaseSurfaceViewFPS {
 
     private long mScore = 0;
-    private int mCountX = GameMode.COUNT_XY_DEFAULT;
-    private int mCountY = GameMode.COUNT_XY_DEFAULT;
+    private int mCountX = GameMode.DEFAULT[1];
+    private int mCountY = GameMode.DEFAULT[2];
 
     private Dot[][] mDotArray;
 
@@ -80,8 +81,6 @@ public class GameView extends BaseSurfaceViewFPS {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                                 initWidget();
-
-
                             }
                         })
                         .create();
@@ -223,6 +222,9 @@ public class GameView extends BaseSurfaceViewFPS {
             }
             mDotList.clear();
 
+            if (mOnGameListener != null) {
+                mOnGameListener.onScoreChange(mScore);
+            }
             if (!isGameOver && checkGameOver()) {
                 isGameOver = true;
                 showGameOverDialog();
@@ -305,5 +307,11 @@ public class GameView extends BaseSurfaceViewFPS {
             }
         }
         return true;
+    }
+
+    private OnGameListener mOnGameListener;
+
+    public void setOnGameListener(OnGameListener onGameListener) {
+        mOnGameListener = onGameListener;
     }
 }

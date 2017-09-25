@@ -3,7 +3,6 @@ package com.cpxiao.gamelib.mode.common;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.RectF;
 
 import com.cpxiao.AppConfig;
@@ -197,21 +196,6 @@ public class Sprite {
         return mFrame;
     }
 
-    /**
-     * @param sprite 精灵
-     * @return 碰撞点
-     */
-    public Point getCollidePointWithOther(Sprite sprite) {
-        Point point = null;
-        RectF rectF1 = getRectF();
-        RectF rectF2 = sprite.getRectF();
-        RectF rectF = new RectF();
-        boolean isIntersect = rectF.setIntersect(rectF1, rectF2);
-        if (isIntersect) {
-            point = new Point(Math.round(rectF.centerX()), Math.round(rectF.centerY()));
-        }
-        return point;
-    }
 
     /**
      * @param x x
@@ -222,49 +206,5 @@ public class Sprite {
         RectF rectF = getCollideRectF();
         return x >= rectF.left && x <= rectF.right && y >= rectF.top && y <= rectF.bottom;
     }
-
-    /**
-     * @param sprite 精灵
-     * @return 是否发生碰撞
-     */
-    public boolean isCollidedWithOther(Sprite sprite) {
-        RectF rectF1 = getCollideRectF();
-        RectF rectF2 = sprite.getCollideRectF();
-        RectF rectF = new RectF();
-        return rectF.setIntersect(rectF1, rectF2);
-    }
-
-    public boolean onTheLeftOfOther(Sprite sprite) {
-        RectF a = getRectF();
-        RectF b = sprite.getRectF();
-
-        return isCollidedWithOther(sprite)
-                && a.centerX() < b.centerX();
-    }
-
-    public boolean onTheRightOfOther(Sprite sprite) {
-        RectF a = getRectF();
-        RectF b = sprite.getRectF();
-
-        return isCollidedWithOther(sprite)
-                && a.centerX() >= b.centerX();
-    }
-
-    public boolean onTheTopOfOther(Sprite sprite) {
-        RectF a = getRectF();
-        RectF b = sprite.getRectF();
-
-        return isCollidedWithOther(sprite)
-                && a.centerY() < b.centerY();
-    }
-
-    public boolean onTheBottomOfOther(Sprite sprite) {
-        RectF a = getRectF();
-        RectF b = sprite.getRectF();
-
-        return isCollidedWithOther(sprite)
-                && a.centerY() >= b.centerY();
-    }
-
 
 }
