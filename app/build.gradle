@@ -8,8 +8,8 @@ android {
         applicationId "com.cpxiao.twofortwo"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 103
-        versionName "1.0.3"
+        versionCode 105
+        versionName "1.0.5"
     }
     buildTypes {
         release {
@@ -78,3 +78,5 @@ dependencies {
      * Ads End
      */
 }
+
+apply plugin: 'com.google.gms.google-services'

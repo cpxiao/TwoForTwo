@@ -13,9 +13,31 @@ import com.cpxiao.gamelib.mode.common.Sprite;
 
 public class Dot extends Sprite {
 
+    private static final long K = 1024L;
+    private static final long M = 1024L * 1024L;
+    private static final long G = 1024L * 1024L * 1024L;
+    private static final long T = 1024L * 1024L * 1024L * 1024L;
+
+    private int indexX;
+    private int indexY;
+
     private boolean isSelected = false;
     private long mNumber;
     private int mColor;
+
+    protected Dot(Build build) {
+        super(build);
+        this.indexX = build.indexX;
+        this.indexY = build.indexY;
+    }
+
+    public int getIndexX() {
+        return indexX;
+    }
+
+    public int getIndexY() {
+        return indexY;
+    }
 
     public void reset(long number, int color) {
         setFrame(0);
@@ -44,8 +66,8 @@ public class Dot extends Sprite {
     }
 
     private float getR() {
-        RectF rectF = getDrawRectF();
-        float maxR = 0.5F * Math.min(rectF.width(), rectF.height());
+        RectF rectF = getSpriteRectF();
+        float maxR = 0.3F * Math.min(rectF.width(), rectF.height());
         long frame = getFrame();
         if (frame < 10) {
             return maxR * frame / 10;
@@ -79,16 +101,16 @@ public class Dot extends Sprite {
 
     private void drawNumber(Canvas canvas, Paint paint) {
         String msg;
-        if (mNumber < 1024L) {
-            msg = String.valueOf(mNumber);
-        } else if (mNumber < 1024L * 1024) {
-            msg = mNumber / 1024L + "K";
-        } else if (mNumber < 1024L * 1024 * 1024) {
-            msg = mNumber / (1024L * 1024) + "M";
-        } else if (mNumber < 1024L * 1024 * 1024 * 1024) {
-            msg = mNumber / (1024L * 1024 * 1024) + "G";
+        if (mNumber < K) {
+            msg = mNumber + "";
+        } else if (mNumber < M) {
+            msg = mNumber / K + "K";
+        } else if (mNumber < G) {
+            msg = mNumber / M + "M";
+        } else if (mNumber < T) {
+            msg = mNumber / G + "G";
         } else {
-            msg = mNumber / (1024L * 1024 * 1024 * 1024) + "T";
+            msg = mNumber / T + "T";
         }
 
         paint.setColor(Color.WHITE);
@@ -97,4 +119,22 @@ public class Dot extends Sprite {
     }
 
 
+    public static class Build extends Sprite.Build {
+        private int indexX;
+        private int indexY;
+
+        public Build setIndexX(int indexX) {
+            this.indexX = indexX;
+            return this;
+        }
+
+        public Build setIndexY(int indexY) {
+            this.indexY = indexY;
+            return this;
+        }
+
+        public Dot build() {
+            return new Dot(this);
+        }
+    }
 }

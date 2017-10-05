@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 
 import com.cpxiao.R;
 import com.cpxiao.androidutils.library.utils.ThreadUtils;
+import com.cpxiao.gamelib.mode.common.SpriteControl;
 import com.cpxiao.gamelib.views.BaseSurfaceViewFPS;
 import com.cpxiao.twofortwo.OnGameListener;
 import com.cpxiao.twofortwo.mode.Dot;
@@ -37,9 +38,10 @@ public class GameView extends BaseSurfaceViewFPS {
     private int mCountX = GameMode.DEFAULT[1];
     private int mCountY = GameMode.DEFAULT[2];
 
+
     private Dot[][] mDotArray;
 
-    private List<Dot> mDotList = new ArrayList<>();
+    private List<Dot> mSelectedDotList = new ArrayList<>();
 
     private Dot mLastDot = null;
 
@@ -144,17 +146,18 @@ public class GameView extends BaseSurfaceViewFPS {
         mDotArray = new Dot[mCountY][mCountX];
         for (int y = 0; y < mCountY; y++) {
             for (int x = 0; x < mCountX; x++) {
-                Dot dot = new Dot();
+                Dot dot = (Dot) new Dot.Build()
+                        .setIndexX(x)
+                        .setIndexY(y)
+                        .setW(dotWH)
+                        .setH(dotWH)
+                        .setX(paddingLR + x * dotWH)
+                        .setY(paddingT + y * dotWH)
+                        .build();
                 long number = ColorExtra.getRandomNumber();
                 int color = ColorExtra.getRandomColor(getContext(), number);
                 dot.reset(number, color);
 
-                dot.setWidth(dotWH);
-                dot.setHeight(dotWH);
-                dot.setDrawRectFPercent(0.6F);
-                dot.setDrawRectFPercent((0.13F * mViewWidth) / dotWH);
-                dot.setX(paddingLR + x * dotWH);
-                dot.setY(paddingT + y * dotWH);
                 mDotArray[y][x] = dot;
             }
         }
@@ -173,16 +176,16 @@ public class GameView extends BaseSurfaceViewFPS {
     }
 
     private void drawLinkLine(Canvas canvas, Paint paint) {
-        if (mDotList.size() < 2) {
+        if (mSelectedDotList.size() < 2) {
             return;
         }
         paint.setStrokeWidth(0.02F * mViewWidth);
-        int color = mDotList.get(0).getColor();
+        int color = mSelectedDotList.get(0).getColor();
         paint.setColor(color);
 
-        for (int i = 0; i < mDotList.size() - 1; i++) {
-            Dot dot0 = mDotList.get(i);
-            Dot dot1 = mDotList.get(i + 1);
+        for (int i = 0; i < mSelectedDotList.size() - 1; i++) {
+            Dot dot0 = mSelectedDotList.get(i);
+            Dot dot1 = mSelectedDotList.get(i + 1);
             canvas.drawLine(dot0.getCenterX(), dot0.getCenterY(), dot1.getCenterX(), dot1.getCenterY(), paint);
         }
     }
@@ -217,10 +220,10 @@ public class GameView extends BaseSurfaceViewFPS {
         if (action == MotionEvent.ACTION_UP) {
             merge();
             mLastDot = null;
-            for (Dot dot : mDotList) {
+            for (Dot dot : mSelectedDotList) {
                 dot.setSelected(false);
             }
-            mDotList.clear();
+            mSelectedDotList.clear();
 
             if (mOnGameListener != null) {
                 mOnGameListener.onScoreChange(mScore);
@@ -236,14 +239,14 @@ public class GameView extends BaseSurfaceViewFPS {
         for (int y = 0; y < mCountY; y++) {
             for (int x = 0; x < mCountX; x++) {
                 Dot dot = mDotArray[y][x];
-                if (dot.isClicked(eventX, eventY)) {
+                if (SpriteControl.isClicked(dot, eventX, eventY)) {
                     dot.setSelected(true);
                     if (dot != mLastDot) {
-                        mDotList.add(dot);
+                        mSelectedDotList.add(dot);
                         mLastDot = dot;
                     }
                     if (DEBUG) {
-                        Log.d(TAG, "onTouchEvent: mDotList.size() = " + mDotList.size());
+                        Log.d(TAG, "onTouchEvent: mSelectedDotList.size() = " + mSelectedDotList.size());
                     }
                     return true;
                 }
@@ -259,8 +262,8 @@ public class GameView extends BaseSurfaceViewFPS {
             return;
         }
         //处理最后一个Dot
-        int size = mDotList.size();
-        Dot lastDot = mDotList.get(size - 1);
+        int size = mSelectedDotList.size();
+        Dot lastDot = mSelectedDotList.get(size - 1);
         long score = lastDot.getNumber() * size;
         // 添加得分
         mScore += score;
@@ -272,7 +275,7 @@ public class GameView extends BaseSurfaceViewFPS {
 
         //处理非最后一个Dot
         for (int i = 0; i < size - 1; i++) {
-            Dot dot = mDotList.get(i);
+            Dot dot = mSelectedDotList.get(i);
             long number = ColorExtra.getRandomNumber();
             int color = getRandomColor(getContext(), number);
             dot.reset(number, color);
@@ -281,18 +284,22 @@ public class GameView extends BaseSurfaceViewFPS {
 
     /**
      * 检查是否可以合并。
-     * 小于2或者有重复添加，就不能合并
+     * 以下情况不能合并：
+     * 1.小于2
+     * 2.有重复添加
+     * 3.数值不一样
+     * 4.相邻两个节点处于斜线位置而非上下或者左右位置
      *
      * @return boolean
      */
     private boolean isCanBeMerged() {
-        if (mDotList.size() < 2) {
+        if (mSelectedDotList.size() < 2) {
             return false;
         }
-        for (int i = 0; i < mDotList.size(); i++) {
-            Dot dot = mDotList.get(i);
-            for (int j = i; j < mDotList.size(); j++) {
-                if (j > i && dot == mDotList.get(j)) {
+        for (int i = 0; i < mSelectedDotList.size(); i++) {
+            Dot dot = mSelectedDotList.get(i);
+            for (int j = i; j < mSelectedDotList.size(); j++) {
+                if (j > i && dot == mSelectedDotList.get(j)) {
                     //重复添加
                     return false;
                 }
@@ -300,9 +307,18 @@ public class GameView extends BaseSurfaceViewFPS {
         }
 
         //判断数值是否一样
-        long value = mDotList.get(0).getNumber();
-        for (Dot dot : mDotList) {
+        long value = mSelectedDotList.get(0).getNumber();
+        for (Dot dot : mSelectedDotList) {
             if (value != dot.getNumber()) {
+                return false;
+            }
+        }
+        //判断相邻两个点是否处于上下或者左右位置，若为斜线位置则不能合并
+        for (int i = 0; i < mSelectedDotList.size() - 1; i++) {
+            Dot dot0 = mSelectedDotList.get(i);
+            Dot dot1 = mSelectedDotList.get(i + 1);
+            if (dot0.getIndexX() != dot1.getIndexX()
+                    && dot0.getIndexY() != dot1.getIndexY()) {
                 return false;
             }
         }

@@ -5,6 +5,7 @@ package com.cpxiao.twofortwo.mode.extra;
  */
 
 public class GameMode {
+
     public static final int[] EASY = {16, 4, 4};
     public static final int[] NORMAL = {20, 4, 5};
     public static final int[] HARD = {25, 5, 5};

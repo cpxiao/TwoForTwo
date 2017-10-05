@@ -6,28 +6,50 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 
 import com.cpxiao.AppConfig;
+import com.cpxiao.gamelib.mode.common.imps.Base;
+import com.cpxiao.gamelib.mode.common.imps.Life;
+import com.cpxiao.gamelib.mode.common.imps.Move;
 
 /**
- * @author cpxiao on 2017/07/16.
+ * @author cpxiao on 2017/7/16.
+ * @version cpxiao on 2017/9/8.删除无用方法
  */
 
-public class Sprite {
+public class Sprite implements Base, Move, Life {
 
     protected boolean DEBUG = AppConfig.DEBUG;
     protected String TAG = getClass().getSimpleName();
 
-    private float x, y;//坐标
-    private float width, height;//宽高
+    /**
+     * 坐标
+     */
+    private float x, y;
+
+    /**
+     * 宽高
+     */
+    private float width, height;
+    /**
+     * 速度
+     */
+    private float mSpeedX;//横向速度，向右为正。
+    private float mSpeedY;//纵向速度，向下为正。
+
+    //精灵可移动的范围矩形，根据精灵矩形判断边界
+    private RectF mMovingRangeRectF = null;
+
+    /**
+     * 生命
+     */
+    private int mLife;
+
+    private Bitmap bitmap = null;
 
     /**
      * 精灵矩形
      */
-    private RectF mRectF = new RectF();
-    /**
-     * 绘制矩形，根据精灵矩形的百分比计算
-     */
-    private float mDrawRectFPercentW = 1, mDrawRectFPercentH = 1;
-    private RectF mDrawRectF = new RectF();
+    private RectF mSpriteRectF = new RectF();
+
     /**
      * 碰撞矩形，根据精灵矩形的百分比计算
      */
@@ -39,49 +61,148 @@ public class Sprite {
     private boolean destroyed = false;//是否已销毁
     private long mFrame = 0;//绘制的次数
 
-    private Bitmap bitmap = null;
-
-    public Sprite() {
+    private Sprite() {
     }
 
-    public Sprite(Bitmap bitmap) {
+    protected Sprite(Build build) {
+        x = build.x;
+        y = build.y;
+        width = build.w;
+        height = build.h;
+        bitmap = build.bitmap;
+        mSpeedX = build.speedX;
+        mSpeedY = build.speedY;
+        mLife = build.life;
+        mMovingRangeRectF = build.movingRangeRectF;
+    }
+
+    @Override
+    public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
     }
 
+    @Override
     public Bitmap getBitmap() {
         return bitmap;
     }
 
-    public float getX() {
-        return x;
-    }
-
+    @Override
     public void setX(float x) {
         this.x = x;
     }
 
-    public float getY() {
-        return y;
+    @Override
+    public float getX() {
+        return x;
     }
 
+    @Override
     public void setY(float y) {
         this.y = y;
     }
 
-    public float getWidth() {
-        return width;
+    @Override
+    public float getY() {
+        return y;
     }
 
+    @Override
     public void setWidth(float width) {
         this.width = width;
     }
 
+    @Override
+    public float getWidth() {
+        return width;
+    }
+
+    @Override
+    public void setHeight(float height) {
+        this.height = height;
+    }
+
+    @Override
     public float getHeight() {
         return height;
     }
 
-    public void setHeight(float height) {
-        this.height = height;
+
+    @Override
+    public void setSpeedX(float speedX) {
+        mSpeedX = speedX;
+    }
+
+    @Override
+    public float getSpeedX() {
+        return mSpeedX;
+    }
+
+    @Override
+    public void setSpeedY(float speedY) {
+        mSpeedY = speedY;
+    }
+
+
+    @Override
+    public float getSpeedY() {
+        return mSpeedY;
+    }
+
+    @Override
+    public void moveBy(float offsetX, float offsetY) {
+        x += offsetX;
+        y += offsetY;
+    }
+
+    @Override
+    public void moveTo(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    @Override
+    public void centerTo(float centerX, float centerY) {
+        float w = getWidth();
+        float h = getHeight();
+        x = centerX - 0.5F * w;
+        y = centerY - 0.5F * h;
+    }
+
+    @Override
+    public void setLife(int life) {
+        this.mLife = life;
+    }
+
+    @Override
+    public int getLife() {
+        return mLife;
+    }
+
+    @Override
+    public void addLife(int life) {
+        this.mLife += life;
+    }
+
+    @Override
+    public void deleteLife(int life) {
+        this.mLife -= life;
+    }
+
+    public void destroy() {
+        destroyed = true;
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+
+
+    public void setFrame(long frame) {
+        mFrame = frame;
+    }
+
+    public long getFrame() {
+        return mFrame;
     }
 
     public void setVisibility(boolean visible) {
@@ -100,30 +221,12 @@ public class Sprite {
         return y + 0.5F * height;
     }
 
-    public RectF getRectF() {
-        mRectF.left = x;
-        mRectF.top = y;
-        mRectF.right = mRectF.left + getWidth();
-        mRectF.bottom = mRectF.top + getHeight();
-        return mRectF;
-    }
-
-    public void setDrawRectFPercent(float percent) {
-        mDrawRectFPercentW = percent;
-        mDrawRectFPercentH = percent;
-    }
-
-    public void setDrawRectFPercent(float percentW, float percentH) {
-        mDrawRectFPercentW = percentW;
-        mDrawRectFPercentH = percentH;
-    }
-
-    public RectF getDrawRectF() {
-        mDrawRectF.left = getCenterX() - 0.5F * mDrawRectFPercentW * getWidth();
-        mDrawRectF.top = getCenterY() - 0.5F * mDrawRectFPercentH * getHeight();
-        mDrawRectF.right = getCenterX() + 0.5F * mDrawRectFPercentW * getWidth();
-        mDrawRectF.bottom = getCenterY() + 0.5F * mDrawRectFPercentH * getHeight();
-        return mDrawRectF;
+    public RectF getSpriteRectF() {
+        mSpriteRectF.left = x;
+        mSpriteRectF.top = y;
+        mSpriteRectF.right = mSpriteRectF.left + getWidth();
+        mSpriteRectF.bottom = mSpriteRectF.top + getHeight();
+        return mSpriteRectF;
     }
 
     public void setCollideRectFPercent(float percent) {
@@ -144,21 +247,32 @@ public class Sprite {
         return mCollideRectF;
     }
 
-    public void moveBy(float offsetX, float offsetY) {
-        x += offsetX;
-        y += offsetY;
+    public void setMovingRangeRectFL(float l) {
+        if (mMovingRangeRectF != null) {
+            mMovingRangeRectF.left = l;
+        }
     }
 
-    public void moveTo(float x, float y) {
-        this.x = x;
-        this.y = y;
+    public void setMovingRangeRectFR(float r) {
+        if (mMovingRangeRectF != null) {
+            mMovingRangeRectF.right = r;
+        }
     }
 
-    public void centerTo(float centerX, float centerY) {
-        float w = getWidth();
-        float h = getHeight();
-        x = centerX - 0.5F * w;
-        y = centerY - 0.5F * h;
+    public void setMovingRangeRectFT(float t) {
+        if (mMovingRangeRectF != null) {
+            mMovingRangeRectF.top = t;
+        }
+    }
+
+    public void setMovingRangeRectFB(float b) {
+        if (mMovingRangeRectF != null) {
+            mMovingRangeRectF.bottom = b;
+        }
+    }
+
+    public RectF getMovingRangeRectF() {
+        return mMovingRangeRectF;
     }
 
     public void draw(Canvas canvas, Paint paint) {
@@ -169,7 +283,30 @@ public class Sprite {
     }
 
     protected void beforeDraw(Canvas canvas, Paint paint) {
+        if (mLife <= 0) {
+            destroy();
+        }
+        if (!isDestroyed()) {
+            //移动speed像素
+            moveBy(mSpeedX, mSpeedY);
 
+            //判断移动范围
+            if (mMovingRangeRectF != null) {
+                RectF rectF = getSpriteRectF();
+                if (rectF.left <= mMovingRangeRectF.left) {
+                    setX(mMovingRangeRectF.left);
+                }
+                if (rectF.right >= mMovingRangeRectF.right) {
+                    setX(mMovingRangeRectF.right - rectF.width());
+                }
+                if (rectF.top <= mMovingRangeRectF.top) {
+                    setY(mMovingRangeRectF.top);
+                }
+                if (rectF.bottom >= mMovingRangeRectF.bottom) {
+                    setY(mMovingRangeRectF.bottom - rectF.height());
+                }
+            }
+        }
     }
 
     public void onDraw(Canvas canvas, Paint paint) {
@@ -180,31 +317,75 @@ public class Sprite {
 
     }
 
-    public void destroy() {
-        destroyed = true;
-    }
 
-    public boolean isDestroyed() {
-        return destroyed;
-    }
+    public static class Build {
+        private Bitmap bitmap = null;
+        private float x;
+        private float y;
+        private float w;
+        private float h;
 
-    public void setFrame(long frame) {
-        mFrame = frame;
-    }
+        private float speedX = 0, speedY = 0;
 
-    public long getFrame() {
-        return mFrame;
-    }
+        private int life = 1;
+        private RectF movingRangeRectF = null;
 
 
-    /**
-     * @param x x
-     * @param y y
-     * @return 是否点中精灵
-     */
-    public boolean isClicked(float x, float y) {
-        RectF rectF = getCollideRectF();
-        return x >= rectF.left && x <= rectF.right && y >= rectF.top && y <= rectF.bottom;
+        public Build setBitmap(Bitmap bitmap) {
+            this.bitmap = bitmap;
+            return this;
+        }
+
+        public Build setX(float x) {
+            this.x = x;
+            return this;
+        }
+
+        public Build setY(float y) {
+            this.y = y;
+            return this;
+        }
+
+        public Build setW(float w) {
+            this.w = w;
+            return this;
+        }
+
+        public Build setH(float h) {
+            this.h = h;
+            return this;
+        }
+
+        public Build centerTo(float centerX, float centerY) {
+            x = centerX - 0.5F * w;
+            y = centerY - 0.5F * h;
+            return this;
+        }
+
+        public Build setSpeedX(float speedX) {
+            this.speedX = speedX;
+            return this;
+        }
+
+        public Build setSpeedY(float speedY) {
+            this.speedY = speedY;
+            return this;
+        }
+
+        public Build setLife(int life) {
+            this.life = life;
+            return this;
+        }
+
+        public Build setMovingRangeRectF(RectF rectF) {
+            this.movingRangeRectF = rectF;
+            return this;
+        }
+
+
+        public Sprite build() {
+            return new Sprite(this);
+        }
     }
 
 }

@@ -12,6 +12,7 @@ import com.cpxiao.twofortwo.OnGameListener;
 import com.cpxiao.twofortwo.mode.extra.Extra;
 import com.cpxiao.twofortwo.mode.extra.GameMode;
 import com.cpxiao.twofortwo.view.GameView;
+import com.cpxiao.zads.core.ZAdPosition;
 
 /**
  * @author cpxiao on 2017/08/23.
@@ -33,6 +34,8 @@ public class GameFragment extends BaseZAdsFragment {
 
     @Override
     protected void initView(View view, Bundle savedInstanceState) {
+        loadZAds(ZAdPosition.POSITION_GAME);
+
         Bundle bundle;
         bundle = getArguments();
         if (bundle != null) {
