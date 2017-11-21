@@ -13,12 +13,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.cpxiao.R;
+import com.cpxiao.androidutils.library.utils.PreferencesUtils;
 import com.cpxiao.androidutils.library.utils.ThreadUtils;
 import com.cpxiao.gamelib.mode.common.SpriteControl;
 import com.cpxiao.gamelib.views.BaseSurfaceViewFPS;
-import com.cpxiao.twofortwo.OnGameListener;
 import com.cpxiao.twofortwo.mode.Dot;
 import com.cpxiao.twofortwo.mode.extra.ColorExtra;
+import com.cpxiao.twofortwo.mode.extra.Extra;
 import com.cpxiao.twofortwo.mode.extra.GameMode;
 
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ import static com.cpxiao.twofortwo.mode.extra.ColorExtra.getRandomColor;
 public class GameView extends BaseSurfaceViewFPS {
 
     private long mScore = 0;
+    private long mBestScore = 0;
+    private int mMode = GameMode.DEFAULT[0];
     private int mCountX = GameMode.DEFAULT[1];
     private int mCountY = GameMode.DEFAULT[2];
 
@@ -47,8 +50,9 @@ public class GameView extends BaseSurfaceViewFPS {
 
     private boolean isGameOver = false;
 
-    public GameView(Context context, int countX, int countY) {
+    public GameView(Context context, int mode, int countX, int countY) {
         super(context);
+        mMode = mode;
         mCountX = countX;
         mCountY = countY;
     }
@@ -139,6 +143,9 @@ public class GameView extends BaseSurfaceViewFPS {
     protected void initWidget() {
         isGameOver = false;
         mScore = 0;
+        String key = Extra.Key.getBestScoreKey(mMode);
+        mBestScore = PreferencesUtils.getLong(getContext(), key, 0);
+
 
         float paddingLR = 0.04F * mViewWidth;
         float paddingT = Resources.getSystem().getDisplayMetrics().density * 80;
@@ -172,6 +179,8 @@ public class GameView extends BaseSurfaceViewFPS {
         drawDotArray(mCanvasCache, mPaint);
 
         drawScore(mCanvasCache, mPaint);
+
+        drawBestScore(mCanvasCache, mPaint);
 
     }
 
@@ -211,6 +220,13 @@ public class GameView extends BaseSurfaceViewFPS {
         canvas.drawText(scoreMsg, 0.5F * mViewWidth, 0.08F * mViewHeight, paint);
     }
 
+    private void drawBestScore(Canvas canvas, Paint paint) {
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(0.02F * mViewHeight);
+        String scoreMsg = getContext().getString(R.string.best_score) + ": " + mBestScore;
+        canvas.drawText(scoreMsg, 0.5F * mViewWidth, 0.12F * mViewHeight, paint);
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
@@ -225,9 +241,8 @@ public class GameView extends BaseSurfaceViewFPS {
             }
             mSelectedDotList.clear();
 
-            if (mOnGameListener != null) {
-                mOnGameListener.onScoreChange(mScore);
-            }
+            updateScoreAndBestScore(getContext());
+
             if (!isGameOver && checkGameOver()) {
                 isGameOver = true;
                 showGameOverDialog();
@@ -255,6 +270,12 @@ public class GameView extends BaseSurfaceViewFPS {
 
 
         return super.onTouchEvent(event);
+    }
+
+    private void updateScoreAndBestScore(Context context) {
+        String key = Extra.Key.getBestScoreKey(mMode);
+        mBestScore = Math.max(mScore, mBestScore);
+        PreferencesUtils.putLong(context, key, mBestScore);
     }
 
     private void merge() {
@@ -325,9 +346,4 @@ public class GameView extends BaseSurfaceViewFPS {
         return true;
     }
 
-    private OnGameListener mOnGameListener;
-
-    public void setOnGameListener(OnGameListener onGameListener) {
-        mOnGameListener = onGameListener;
-    }
 }

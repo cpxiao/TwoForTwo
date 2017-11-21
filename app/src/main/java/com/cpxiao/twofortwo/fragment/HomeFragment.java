@@ -6,9 +6,14 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.cpxiao.R;
 import com.cpxiao.androidutils.library.utils.PreferencesUtils;
+import com.cpxiao.androidutils.library.utils.RateAppUtils;
+import com.cpxiao.androidutils.library.utils.ShareAppUtils;
 import com.cpxiao.gamelib.fragment.BaseZAdsFragment;
 import com.cpxiao.twofortwo.mode.extra.Extra;
 import com.cpxiao.twofortwo.mode.extra.GameMode;
@@ -32,21 +37,24 @@ public class HomeFragment extends BaseZAdsFragment implements View.OnClickListen
     @Override
     protected void initView(View view, Bundle savedInstanceState) {
         loadZAds(ZAdPosition.POSITION_HOME);
+
         Button buttonEasy = (Button) view.findViewById(R.id.easy);
         Button buttonNormal = (Button) view.findViewById(R.id.normal);
         Button buttonHard = (Button) view.findViewById(R.id.hard);
         Button buttonInsane = (Button) view.findViewById(R.id.insane);
-        Button buttonBestScore = (Button) view.findViewById(R.id.best_score);
-        Button buttonSettings = (Button) view.findViewById(R.id.settings);
-        Button buttonQuit = (Button) view.findViewById(R.id.quit);
+        ImageView buttonRateApp = (ImageView) view.findViewById(R.id.rate_app);
+        ImageButton buttonShare = (ImageButton) view.findViewById(R.id.share);
+        ImageButton buttonBestScore = (ImageButton) view.findViewById(R.id.best_score);
+        ImageButton buttonSettings = (ImageButton) view.findViewById(R.id.settings);
 
         buttonEasy.setOnClickListener(this);
         buttonNormal.setOnClickListener(this);
         buttonHard.setOnClickListener(this);
         buttonInsane.setOnClickListener(this);
+        buttonRateApp.setOnClickListener(this);
+        buttonShare.setOnClickListener(this);
         buttonBestScore.setOnClickListener(this);
         buttonSettings.setOnClickListener(this);
-        buttonQuit.setOnClickListener(this);
 
     }
 
@@ -62,49 +70,41 @@ public class HomeFragment extends BaseZAdsFragment implements View.OnClickListen
         Context context = getHoldingActivity();
 
         Bundle bundle = new Bundle();
+        if (id == R.id.easy) {
+            bundle.putInt(GameMode.MODE, GameMode.EASY[0]);
+            bundle.putInt(GameMode.MODE_X, GameMode.EASY[1]);
+            bundle.putInt(GameMode.MODE_Y, GameMode.EASY[2]);
+            addFragment(GameFragment.newInstance(bundle));
+        } else if (id == R.id.normal) {
 
-        switch (id) {
-            case R.id.easy: {
-                bundle.putInt(GameMode.MODE, GameMode.EASY[0]);
-                bundle.putInt(GameMode.MODE_X, GameMode.EASY[1]);
-                bundle.putInt(GameMode.MODE_Y, GameMode.EASY[2]);
-                addFragment(GameFragment.newInstance(bundle));
-                break;
-            }
-            case R.id.normal: {
-                bundle.putInt(GameMode.MODE, GameMode.NORMAL[0]);
-                bundle.putInt(GameMode.MODE_X, GameMode.NORMAL[1]);
-                bundle.putInt(GameMode.MODE_Y, GameMode.NORMAL[2]);
-                addFragment(GameFragment.newInstance(bundle));
-                break;
-            }
-            case R.id.hard: {
-                bundle.putInt(GameMode.MODE, GameMode.HARD[0]);
-                bundle.putInt(GameMode.MODE_X, GameMode.HARD[1]);
-                bundle.putInt(GameMode.MODE_Y, GameMode.HARD[2]);
-                addFragment(GameFragment.newInstance(bundle));
-                break;
-            }
-            case R.id.insane: {
-                bundle.putInt(GameMode.MODE, GameMode.INSANE[0]);
-                bundle.putInt(GameMode.MODE_X, GameMode.INSANE[1]);
-                bundle.putInt(GameMode.MODE_Y, GameMode.INSANE[2]);
-                addFragment(GameFragment.newInstance(bundle));
-                break;
-            }
-            case R.id.best_score: {
-                showBestScoreDialog(context);
-                break;
-            }
-            case R.id.settings: {
-                //                addFragment(SettingsFragment.newInstance(null));
-                break;
-            }
-            case R.id.quit: {
-                removeFragment();
-                break;
-            }
+            bundle.putInt(GameMode.MODE, GameMode.NORMAL[0]);
+            bundle.putInt(GameMode.MODE_X, GameMode.NORMAL[1]);
+            bundle.putInt(GameMode.MODE_Y, GameMode.NORMAL[2]);
+            addFragment(GameFragment.newInstance(bundle));
+        } else if (id == R.id.hard) {
 
+            bundle.putInt(GameMode.MODE, GameMode.HARD[0]);
+            bundle.putInt(GameMode.MODE_X, GameMode.HARD[1]);
+            bundle.putInt(GameMode.MODE_Y, GameMode.HARD[2]);
+            addFragment(GameFragment.newInstance(bundle));
+        } else if (id == R.id.insane) {
+
+            bundle.putInt(GameMode.MODE, GameMode.INSANE[0]);
+            bundle.putInt(GameMode.MODE_X, GameMode.INSANE[1]);
+            bundle.putInt(GameMode.MODE_Y, GameMode.INSANE[2]);
+            addFragment(GameFragment.newInstance(bundle));
+        } else if (id == R.id.rate_app) {
+            Toast.makeText(context, "Thanks for rating us.", Toast.LENGTH_SHORT).show();
+            RateAppUtils.rate(context);
+        } else if (id == R.id.share) {
+            String msg = getString(R.string.share_msg) + "\n" +
+                    getString(R.string.app_name) + "\n" +
+                    "https://play.google.com/store/apps/details?id=" + context.getPackageName();
+            ShareAppUtils.share(context, getString(R.string.share), msg);
+        } else if (id == R.id.best_score) {
+            showBestScoreDialog(context);
+        } else if (id == R.id.settings) {
+            Toast.makeText(context, "Coming soon...", Toast.LENGTH_SHORT).show();
         }
     }
 

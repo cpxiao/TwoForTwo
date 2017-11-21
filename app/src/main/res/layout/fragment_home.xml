@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:background="@drawable/home_fragment_bg"
+    android:gravity="center"
     android:orientation="vertical"
     android:paddingBottom="100dp">
 
@@ -13,56 +13,106 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="20dp"
-        android:textColor="#fe918c"
         android:text="@string/app_name"
+        android:textColor="#fe918c"
         android:textSize="32sp"/>
 
-    <Button
-        android:id="@+id/easy"
-        style="@style/HomeBtn"
+    <LinearLayout
+        style="@style/HomeLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/easy"/>
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/normal"
-        style="@style/HomeBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/normal"/>
+        <Button
+            android:id="@+id/easy"
+            style="@style/HomeBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/easy"/>
 
-    <Button
-        android:id="@+id/hard"
-        style="@style/HomeBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/hard"/>
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/insane"
-        style="@style/HomeBtn"
+    <LinearLayout
+        style="@style/HomeLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/insane"/>
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/best_score"
-        style="@style/HomeBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/best_score"/>
+        <Button
+            android:id="@+id/normal"
+            style="@style/HomeBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/normal"/>
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/settings"
-        style="@style/HomeBtn"
+    <LinearLayout
+        style="@style/HomeLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/settings"/>
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/quit"
-        style="@style/HomeBtn"
+        <Button
+            android:id="@+id/hard"
+            style="@style/HomeBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/hard"/>
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/HomeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/insane"
+            style="@style/HomeBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/insane"/>
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/HomeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/quit"/>
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/rate_app"
+            style="@style/HomeBtn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/share"
+            android:src="@drawable/ic_rate"/>
+
+        <ImageButton
+            android:id="@+id/share"
+            style="@style/HomeBtn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/share"
+            android:src="@drawable/ic_share"/>
+
+        <ImageButton
+            android:id="@+id/best_score"
+            style="@style/HomeBtn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/best_score"
+            android:src="@drawable/ic_best"/>
+
+        <ImageButton
+            android:id="@+id/settings"
+            style="@style/HomeBtn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/settings"
+            android:src="@drawable/ic_settings"/>
+
+    </LinearLayout>
+
+
 </LinearLayout>
