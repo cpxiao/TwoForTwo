@@ -15,6 +15,7 @@ android {
         flavorDimensions "channel"
     }
 
+
     buildTypes {
         release {
             minifyEnabled true  //混淆
