@@ -11,3 +11,5 @@
 .idea
 gradlew*
 *apk
+output.json
+google-services.json
