@@ -104,7 +104,7 @@ public class GameView extends BaseSurfaceViewFPS {
      * @return true: game over; false: not game over
      */
     private boolean checkGameOver() {
-        if (!isDotArrayLegal()) {
+        if (isDotArrayIllegal()) {
             return false;
         }
         for (int y = 0; y < mCountY; y++) {
@@ -135,33 +135,49 @@ public class GameView extends BaseSurfaceViewFPS {
         return true;
     }
 
-    private boolean isDotArrayLegal() {
-        return mDotArray != null && mDotArray.length == mCountY && mDotArray[0].length == mCountX;
+    private boolean isDotArrayIllegal() {
+        return mDotArray == null || mDotArray.length != mCountY || mDotArray[0].length != mCountX;
     }
 
     @Override
     protected void initWidget() {
         isGameOver = false;
-        mScore = 0;
-        String key = Extra.Key.getBestScoreKey(mMode);
-        mBestScore = PreferencesUtils.getLong(getContext(), key, 0);
+
+        // 读取存档，读取分数
+        String scoreKey = Extra.Key.getScoreKey(mMode);
+        mScore = PreferencesUtils.getLong(getContext(), scoreKey, 0);
 
 
-        float paddingLR = 0.04F * mViewWidth;
-        float paddingT = Resources.getSystem().getDisplayMetrics().density * 80;
-        float dotWH = Math.min((mViewWidth - paddingLR * 2) / mCountX, (mViewHeight - 2 * paddingT) / mCountY);
+        // 获得最高分
+        String bestScoreKey = Extra.Key.getBestScoreKey(mMode);
+        mBestScore = PreferencesUtils.getLong(getContext(), bestScoreKey, 0);
+
+
+        float marginLR = 0.04F * mViewWidth;
+        float marginT = Resources.getSystem().getDisplayMetrics().density * 80;
+        float marginB = Resources.getSystem().getDisplayMetrics().density * 100;
+        float dotWH = Math.min((mViewWidth - marginLR * 2) / mCountX, (mViewHeight - marginT - marginB) / mCountY);
+
+        float paddingLR = 0.5F * (mViewWidth - marginLR * 2 - dotWH * mCountX);
+        float paddingTB = 0.5F * (mViewHeight - marginT - marginB - dotWH * mCountY);
+
         mDotArray = new Dot[mCountY][mCountX];
         for (int y = 0; y < mCountY; y++) {
             for (int x = 0; x < mCountX; x++) {
+                float cX = marginLR + paddingLR + (x + 0.5F) * dotWH;
+                float cY = marginT + paddingTB + (y + 0.5F) * dotWH;
                 Dot dot = (Dot) new Dot.Build()
                         .setIndexX(x)
                         .setIndexY(y)
                         .setW(dotWH)
                         .setH(dotWH)
-                        .setX(paddingLR + x * dotWH)
-                        .setY(paddingT + y * dotWH)
+                        .centerTo(cX, cY)
                         .build();
-                long number = ColorExtra.getRandomNumber();
+                // 读取存档，读取每个格子的数值
+                String gridNumberKey = Extra.Key.getGridNumberKey(mMode, x, y);
+                long savedNumber = PreferencesUtils.getLong(getContext(), gridNumberKey, 0);
+
+                long number = savedNumber > 0 ? savedNumber : ColorExtra.getRandomNumber(8);
                 int color = ColorExtra.getRandomColor(getContext(), number);
                 dot.reset(number, color);
 
@@ -200,7 +216,7 @@ public class GameView extends BaseSurfaceViewFPS {
     }
 
     private void drawDotArray(Canvas canvas, Paint paint) {
-        if (!isDotArrayLegal()) {
+        if (isDotArrayIllegal()) {
             return;
         }
         for (int y = 0; y < mCountY; y++) {
@@ -215,7 +231,7 @@ public class GameView extends BaseSurfaceViewFPS {
 
     private void drawScore(Canvas canvas, Paint paint) {
         paint.setColor(Color.BLUE);
-        paint.setTextSize(0.05F * mViewHeight);
+        paint.setTextSize(0.04F * mViewHeight);
         String scoreMsg = "" + mScore;
         canvas.drawText(scoreMsg, 0.5F * mViewWidth, 0.08F * mViewHeight, paint);
     }
@@ -273,9 +289,9 @@ public class GameView extends BaseSurfaceViewFPS {
     }
 
     private void updateScoreAndBestScore(Context context) {
-        String key = Extra.Key.getBestScoreKey(mMode);
+        String bestScoreKey = Extra.Key.getBestScoreKey(mMode);
         mBestScore = Math.max(mScore, mBestScore);
-        PreferencesUtils.putLong(context, key, mBestScore);
+        PreferencesUtils.putLong(context, bestScoreKey, mBestScore);
     }
 
     private void merge() {
@@ -286,6 +302,8 @@ public class GameView extends BaseSurfaceViewFPS {
         int size = mSelectedDotList.size();
         Dot lastDot = mSelectedDotList.get(size - 1);
         long score = lastDot.getNumber() * size;
+        long maxNumber = ColorExtra.manageNumber(score);
+
         // 添加得分
         mScore += score;
         long mergeNumber = ColorExtra.manageNumber(score);
@@ -297,7 +315,7 @@ public class GameView extends BaseSurfaceViewFPS {
         //处理非最后一个Dot
         for (int i = 0; i < size - 1; i++) {
             Dot dot = mSelectedDotList.get(i);
-            long number = ColorExtra.getRandomNumber();
+            long number = ColorExtra.getRandomNumber(maxNumber);
             int color = getRandomColor(getContext(), number);
             dot.reset(number, color);
         }
@@ -346,4 +364,23 @@ public class GameView extends BaseSurfaceViewFPS {
         return true;
     }
 
+    public void save() {
+        if (mDotArray == null) {
+            return;
+        }
+
+        // 存档，保存分数
+        String scoreKey = Extra.Key.getScoreKey(mMode);
+        PreferencesUtils.putLong(getContext(), scoreKey, mScore);
+
+        // 存档，保存每个格子的数值
+        for (int y = 0; y < mCountY; y++) {
+            for (int x = 0; x < mCountX; x++) {
+                Dot dot = mDotArray[y][x];
+                String gridNumberKey = Extra.Key.getGridNumberKey(mMode, x, y);
+                PreferencesUtils.putLong(getContext(), gridNumberKey, dot.getNumber());
+            }
+        }
+
+    }
 }

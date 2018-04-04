@@ -2,7 +2,6 @@ package com.cpxiao.twofortwo.mode.extra;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 
 import com.cpxiao.R;
 
@@ -12,15 +11,32 @@ import com.cpxiao.R;
 
 public final class ColorExtra {
 
-    public static long getRandomNumber() {
-        long result = 2;
+    public static long getRandomNumber(long maxNumber) {
+        long result ;
         double random = Math.random();
-        if (random <= 0.8) {
+        if (random <= 0.5) {
             result = 2;
-        } else if (random <= 0.9) {
+        } else if (random <= 0.6) {
             result = 4;
-        } else if (random <= 1) {
+        } else if (random <= 0.7) {
             result = 8;
+        } else if (random <= 0.8) {
+            result = 16;
+        } else if (random <= 0.9) {
+            result = 32;
+        } else if (random <= 0.92) {
+            result = 64;
+        } else if (random <= 0.94) {
+            result = 128;
+        } else if (random <= 0.96) {
+            result = 256;
+        } else if (random <= 0.98) {
+            result = 512;
+        } else {
+            result = 1024;
+        }
+        if (result > maxNumber / 2) {
+            result = maxNumber / 2;
         }
         return result;
     }
@@ -31,7 +47,6 @@ public final class ColorExtra {
             number = number >> 1;//右移
             index++;
         }
-            Log.d("AAAA", "getRandomColor: "+index);
         String[] array = context.getResources().getStringArray(R.array.colorArray);
         return Color.parseColor(array[index % array.length]);
     }

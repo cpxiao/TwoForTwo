@@ -73,6 +73,19 @@
     <LinearLayout
         style="@style/HomeLayout"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/impossible"
+            style="@style/HomeBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/impossible"/>
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/HomeLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 

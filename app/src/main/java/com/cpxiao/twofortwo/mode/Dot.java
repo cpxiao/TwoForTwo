@@ -112,10 +112,10 @@ public class Dot extends Sprite {
         } else {
             msg = mNumber / T + "T";
         }
-
+        float textSize = 0.68F * getR();
         paint.setColor(Color.WHITE);
-        paint.setTextSize(0.68F * getR());
-        canvas.drawText(msg, getCenterX(), getCenterY() + 0.1F * getHeight(), paint);
+        paint.setTextSize(textSize);
+        canvas.drawText(msg, getCenterX(), getCenterY() + 0.35F * textSize, paint);
     }
 
 

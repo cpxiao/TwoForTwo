@@ -10,6 +10,7 @@ public class GameMode {
     public static final int[] NORMAL = {20, 4, 5};
     public static final int[] HARD = {25, 5, 5};
     public static final int[] INSANE = {30, 5, 6};
+    public static final int[] IMPOSSIBLE = {37, 5, 7};
     public static final int[] DEFAULT = EASY;
 
     public static final String MODE = "MODE";

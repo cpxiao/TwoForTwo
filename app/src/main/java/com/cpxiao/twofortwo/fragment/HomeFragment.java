@@ -38,19 +38,21 @@ public class HomeFragment extends BaseZAdsFragment implements View.OnClickListen
     protected void initView(View view, Bundle savedInstanceState) {
         loadZAds(ZAdPosition.POSITION_HOME);
 
-        Button buttonEasy = (Button) view.findViewById(R.id.easy);
-        Button buttonNormal = (Button) view.findViewById(R.id.normal);
-        Button buttonHard = (Button) view.findViewById(R.id.hard);
-        Button buttonInsane = (Button) view.findViewById(R.id.insane);
-        ImageView buttonRateApp = (ImageView) view.findViewById(R.id.rate_app);
-        ImageButton buttonShare = (ImageButton) view.findViewById(R.id.share);
-        ImageButton buttonBestScore = (ImageButton) view.findViewById(R.id.best_score);
-        ImageButton buttonSettings = (ImageButton) view.findViewById(R.id.settings);
+        Button buttonEasy = view.findViewById(R.id.easy);
+        Button buttonNormal = view.findViewById(R.id.normal);
+        Button buttonHard = view.findViewById(R.id.hard);
+        Button buttonInsane = view.findViewById(R.id.insane);
+        Button buttonImpossible = view.findViewById(R.id.impossible);
+        ImageView buttonRateApp = view.findViewById(R.id.rate_app);
+        ImageButton buttonShare = view.findViewById(R.id.share);
+        ImageButton buttonBestScore = view.findViewById(R.id.best_score);
+        ImageButton buttonSettings = view.findViewById(R.id.settings);
 
         buttonEasy.setOnClickListener(this);
         buttonNormal.setOnClickListener(this);
         buttonHard.setOnClickListener(this);
         buttonInsane.setOnClickListener(this);
+        buttonImpossible.setOnClickListener(this);
         buttonRateApp.setOnClickListener(this);
         buttonShare.setOnClickListener(this);
         buttonBestScore.setOnClickListener(this);
@@ -76,22 +78,24 @@ public class HomeFragment extends BaseZAdsFragment implements View.OnClickListen
             bundle.putInt(GameMode.MODE_Y, GameMode.EASY[2]);
             addFragment(GameFragment.newInstance(bundle));
         } else if (id == R.id.normal) {
-
             bundle.putInt(GameMode.MODE, GameMode.NORMAL[0]);
             bundle.putInt(GameMode.MODE_X, GameMode.NORMAL[1]);
             bundle.putInt(GameMode.MODE_Y, GameMode.NORMAL[2]);
             addFragment(GameFragment.newInstance(bundle));
         } else if (id == R.id.hard) {
-
             bundle.putInt(GameMode.MODE, GameMode.HARD[0]);
             bundle.putInt(GameMode.MODE_X, GameMode.HARD[1]);
             bundle.putInt(GameMode.MODE_Y, GameMode.HARD[2]);
             addFragment(GameFragment.newInstance(bundle));
         } else if (id == R.id.insane) {
-
             bundle.putInt(GameMode.MODE, GameMode.INSANE[0]);
             bundle.putInt(GameMode.MODE_X, GameMode.INSANE[1]);
             bundle.putInt(GameMode.MODE_Y, GameMode.INSANE[2]);
+            addFragment(GameFragment.newInstance(bundle));
+        } else if (id == R.id.impossible) {
+            bundle.putInt(GameMode.MODE, GameMode.IMPOSSIBLE[0]);
+            bundle.putInt(GameMode.MODE_X, GameMode.IMPOSSIBLE[1]);
+            bundle.putInt(GameMode.MODE_Y, GameMode.IMPOSSIBLE[2]);
             addFragment(GameFragment.newInstance(bundle));
         } else if (id == R.id.rate_app) {
             Toast.makeText(context, "Thanks for rating us.", Toast.LENGTH_SHORT).show();
@@ -114,10 +118,12 @@ public class HomeFragment extends BaseZAdsFragment implements View.OnClickListen
         String normal = getString(R.string.normal) + ": ";
         String hard = getString(R.string.hard) + ": ";
         String insane = getString(R.string.insane) + ": ";
+        String impossible = getString(R.string.impossible) + ": ";
         String msg = String.format(format, easy) + PreferencesUtils.getLong(context, Extra.Key.getBestScoreKey(GameMode.EASY[0]), 0) + "\n"
                 + String.format(format, normal) + PreferencesUtils.getLong(context, Extra.Key.getBestScoreKey(GameMode.NORMAL[0]), 0) + "\n"
                 + String.format(format, hard) + PreferencesUtils.getLong(context, Extra.Key.getBestScoreKey(GameMode.HARD[0]), 0) + "\n"
-                + String.format(format, insane) + PreferencesUtils.getLong(context, Extra.Key.getBestScoreKey(GameMode.INSANE[0]), 0);
+                + String.format(format, insane) + PreferencesUtils.getLong(context, Extra.Key.getBestScoreKey(GameMode.INSANE[0]), 0) + "\n"
+                + String.format(format, impossible) + PreferencesUtils.getLong(context, Extra.Key.getBestScoreKey(GameMode.IMPOSSIBLE[0]), 0);
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.best_score)
                 .setMessage(msg)

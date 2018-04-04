@@ -5,6 +5,7 @@
     <string name="normal">Normal ( 4 x 5 )</string>
     <string name="hard">Hard ( 5 x 5 )</string>
     <string name="insane">Insane ( 5 x 6 )</string>
+    <string name="impossible">Impossible ( 5 x 7 )</string>
     <string name="rate_app">Rate this app</string>
     <string name="share">Share</string>
     <string name="best_score">Best Score</string>

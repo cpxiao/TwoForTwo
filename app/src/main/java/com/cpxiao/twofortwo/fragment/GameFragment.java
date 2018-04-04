@@ -15,7 +15,7 @@ import com.cpxiao.zads.core.ZAdPosition;
  */
 
 public class GameFragment extends BaseZAdsFragment {
-
+    private GameView mGameView;
     private int mMode = GameMode.DEFAULT[0];
     private int mCountX = GameMode.DEFAULT[1];
     private int mCountY = GameMode.DEFAULT[2];
@@ -39,9 +39,17 @@ public class GameFragment extends BaseZAdsFragment {
             mCountX = bundle.getInt(GameMode.MODE_X, GameMode.DEFAULT[1]);
             mCountY = bundle.getInt(GameMode.MODE_Y, GameMode.DEFAULT[2]);
         }
-        final LinearLayout layout = (LinearLayout) view.findViewById(R.id.layout_game);
-        GameView gameView = new GameView(view.getContext(), mMode, mCountX, mCountY);
-        layout.addView(gameView);
+        final LinearLayout layout = view.findViewById(R.id.layout_game);
+        mGameView = new GameView(view.getContext(), mMode, mCountX, mCountY);
+        layout.addView(mGameView);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mGameView != null) {
+            mGameView.save();
+        }
     }
 
     @Override
