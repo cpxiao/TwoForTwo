@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.cpxiao.R;
@@ -22,10 +21,7 @@ import com.cpxiao.twofortwo.mode.extra.ColorExtra;
 import com.cpxiao.twofortwo.mode.extra.Extra;
 import com.cpxiao.twofortwo.mode.extra.GameMode;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import hugo.weaving.DebugLog;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.cpxiao.twofortwo.mode.extra.ColorExtra.getRandomColor;
 
@@ -44,7 +40,7 @@ public class GameView extends BaseSurfaceViewFPS {
 
     private Dot[][] mDotArray;
 
-    private List<Dot> mSelectedDotList = new ArrayList<>();
+    private CopyOnWriteArrayList<Dot> mSelectedDotList = new CopyOnWriteArrayList<>();
 
     private Dot mLastDot = null;
 
@@ -115,18 +111,38 @@ public class GameView extends BaseSurfaceViewFPS {
                     return false;
                 }
                 //判断右边
-                int xRight = x + 1;
-                if (xRight < mCountX) {
-                    Dot dotR = mDotArray[y][xRight];
+                int x0 = x + 1;
+                if (x0 < mCountX) {
+                    Dot dotR = mDotArray[y][x0];
                     if (dotR == null || dot.getNumber() == dotR.getNumber()) {
                         return false;
                     }
                 }
+
                 //判断下边
-                int yBottom = y + 1;
-                if (yBottom < mCountY) {
-                    Dot dotB = mDotArray[yBottom][x];
+                int y1 = y + 1;
+                if (y1 < mCountY) {
+                    Dot dotB = mDotArray[y1][x];
                     if (dotB == null || dot.getNumber() == dotB.getNumber()) {
+                        return false;
+                    }
+                }
+
+                //判断右上边
+                int x2 = x + 1;
+                int y2 = y - 1;
+                if (x2 < mCountX && y2 >= 0 && y2 < mCountY) {
+                    Dot dotRT = mDotArray[y2][x2];
+                    if (dotRT == null || dot.getNumber() == dotRT.getNumber()) {
+                        return false;
+                    }
+                }
+                //判断右下边
+                int x3 = x + 1;
+                int y3 = y + 1;
+                if (x3 < mCountX && y1 < mCountY) {
+                    Dot dotRB = mDotArray[y3][x3];
+                    if (dotRB == null || dot.getNumber() == dotRB.getNumber()) {
                         return false;
                     }
                 }
@@ -155,7 +171,7 @@ public class GameView extends BaseSurfaceViewFPS {
 
         float marginLR = 0.04F * mViewWidth;
         float marginT = Resources.getSystem().getDisplayMetrics().density * 80;
-        float marginB = Resources.getSystem().getDisplayMetrics().density * 100;
+        float marginB = Resources.getSystem().getDisplayMetrics().density * 120;
         float dotWH = Math.min((mViewWidth - marginLR * 2) / mCountX, (mViewHeight - marginT - marginB) / mCountY);
 
         float paddingLR = 0.5F * (mViewWidth - marginLR * 2 - dotWH * mCountX);
@@ -169,8 +185,8 @@ public class GameView extends BaseSurfaceViewFPS {
                 Dot dot = (Dot) new Dot.Build()
                         .setIndexX(x)
                         .setIndexY(y)
-                        .setW(dotWH)
-                        .setH(dotWH)
+                        .setW(0.6F * dotWH)
+                        .setH(0.6F * dotWH)
                         .centerTo(cX, cY)
                         .build();
                 // 读取存档，读取每个格子的数值
@@ -186,7 +202,6 @@ public class GameView extends BaseSurfaceViewFPS {
         }
     }
 
-    @DebugLog
     @Override
     public void drawCache() {
 
@@ -248,7 +263,6 @@ public class GameView extends BaseSurfaceViewFPS {
         int action = event.getAction();
         float eventX = event.getX();
         float eventY = event.getY();
-
         if (action == MotionEvent.ACTION_UP) {
             merge();
             mLastDot = null;
@@ -271,21 +285,54 @@ public class GameView extends BaseSurfaceViewFPS {
             for (int x = 0; x < mCountX; x++) {
                 Dot dot = mDotArray[y][x];
                 if (SpriteControl.isClicked(dot, eventX, eventY)) {
-                    dot.setSelected(true);
-                    if (dot != mLastDot) {
+
+                    // 添加第一个节点
+                    if (mLastDot == null) {
+                        dot.setSelected(true);
                         mSelectedDotList.add(dot);
                         mLastDot = dot;
-                    }
-                    if (DEBUG) {
-                        Log.d(TAG, "onTouchEvent: mSelectedDotList.size() = " + mSelectedDotList.size());
+                        // TODO 播放音效
+
+                    } else if (dot != mLastDot) {
+
+                        //如果重复了，就删除重复点之后添加的。
+                        if (mSelectedDotList.contains(dot)) {
+                            //找到重复点之后那个点的index
+                            int index = mSelectedDotList.indexOf(dot) + 1;
+                            int size = mSelectedDotList.size();
+                            for (int i = index; i < size; i++) {
+                                Dot deleteDot = mSelectedDotList.get(index);
+                                deleteDot.setSelected(false);
+                                mSelectedDotList.remove(deleteDot);
+                            }
+                            mLastDot = dot;
+                            // TODO 播放音效
+
+                        } else {
+
+                            //如果当前节点与上一个节点距离大于1，则跳过不处理
+                            if (Math.abs(dot.getIndexX() - mLastDot.getIndexX()) > 1 ||
+                                    Math.abs(dot.getIndexY() - mLastDot.getIndexY()) > 1
+                                    ) {
+                                return true;
+                            }
+
+                            //添加节点
+                            dot.setSelected(true);
+                            mSelectedDotList.add(dot);
+                            mLastDot = dot;
+                            // TODO 播放音效
+
+                        }
+
                     }
                     return true;
                 }
             }
         }
 
-
-        return super.onTouchEvent(event);
+        return true;
+//        return super.onTouchEvent(event);
     }
 
     private void updateScoreAndBestScore(Context context) {
@@ -332,32 +379,25 @@ public class GameView extends BaseSurfaceViewFPS {
      * @return boolean
      */
     private boolean isCanBeMerged() {
+        // 若节点数小于2, 则不能合并
         if (mSelectedDotList.size() < 2) {
             return false;
         }
-        for (int i = 0; i < mSelectedDotList.size(); i++) {
-            Dot dot = mSelectedDotList.get(i);
-            for (int j = i; j < mSelectedDotList.size(); j++) {
-                if (j > i && dot == mSelectedDotList.get(j)) {
-                    //重复添加
-                    return false;
-                }
-            }
-        }
 
-        //判断数值是否一样
+        // 若数值不一致，则不能合并
         long value = mSelectedDotList.get(0).getNumber();
         for (Dot dot : mSelectedDotList) {
             if (value != dot.getNumber()) {
                 return false;
             }
         }
-        //判断相邻两个点是否处于上下或者左右位置，若为斜线位置则不能合并
+
+        // 若相邻两个节点距离大于1，则不能合并
         for (int i = 0; i < mSelectedDotList.size() - 1; i++) {
             Dot dot0 = mSelectedDotList.get(i);
             Dot dot1 = mSelectedDotList.get(i + 1);
-            if (dot0.getIndexX() != dot1.getIndexX()
-                    && dot0.getIndexY() != dot1.getIndexY()) {
+            if (Math.abs(dot0.getIndexX() - dot1.getIndexX()) > 1
+                    || Math.abs(dot0.getIndexY() - dot1.getIndexY()) > 1) {
                 return false;
             }
         }

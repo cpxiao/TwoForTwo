@@ -67,7 +67,7 @@ public class Dot extends Sprite {
 
     private float getR() {
         RectF rectF = getSpriteRectF();
-        float maxR = 0.3F * Math.min(rectF.width(), rectF.height());
+        float maxR = 0.5F * Math.min(rectF.width(), rectF.height());
         long frame = getFrame();
         if (frame < 10) {
             return maxR * frame / 10;
@@ -80,14 +80,13 @@ public class Dot extends Sprite {
     public void onDraw(Canvas canvas, Paint paint) {
         float r = getR();
         if (isSelected) {
-            drawSelectedCircle(canvas, paint, r);
+            drawSelectedCircle(canvas, paint, 1.25F*r);
         }
         drawSmallCircle(canvas, paint, r);
         drawNumber(canvas, paint);
     }
 
     private void drawSelectedCircle(Canvas canvas, Paint paint, float r) {
-        r = 1.2F * r;
         paint.setColor(mColor);
         paint.setAlpha(100);
         canvas.drawCircle(getCenterX(), getCenterY(), r, paint);
@@ -112,7 +111,16 @@ public class Dot extends Sprite {
         } else {
             msg = mNumber / T + "T";
         }
-        float textSize = 0.68F * getR();
+        float textSize;
+        if (msg.length() == 1) {
+            textSize = 0.6F * getWidth();
+        } else if (msg.length() == 2) {
+            textSize = 0.5F * getWidth();
+        } else if (msg.length() == 3) {
+            textSize = 0.4F * getWidth();
+        } else {
+            textSize = 0.35F * getWidth();
+        }
         paint.setColor(Color.WHITE);
         paint.setTextSize(textSize);
         canvas.drawText(msg, getCenterX(), getCenterY() + 0.35F * textSize, paint);
