@@ -12,7 +12,7 @@ import com.cpxiao.R;
 public final class ColorExtra {
 
     public static long getRandomNumber(long maxNumber) {
-        long result ;
+        long result;
         double random = Math.random();
         if (random <= 0.5) {
             result = 2;
@@ -36,7 +36,7 @@ public final class ColorExtra {
             result = 1024;
         }
         if (result > maxNumber / 2) {
-            result = maxNumber / 2;
+            result = Math.random() < 0.6 ? 4 : 8;
         }
         return result;
     }

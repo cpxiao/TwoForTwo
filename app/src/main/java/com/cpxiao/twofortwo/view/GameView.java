@@ -82,7 +82,8 @@ public class GameView extends BaseSurfaceViewFPS {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                initWidget();
+                                initGame(true);
+                                save();
                             }
                         })
                         .create();
@@ -159,10 +160,17 @@ public class GameView extends BaseSurfaceViewFPS {
     protected void initWidget() {
         isGameOver = false;
 
-        // 读取存档，读取分数
-        String scoreKey = Extra.Key.getScoreKey(mMode);
-        mScore = PreferencesUtils.getLong(getContext(), scoreKey, 0);
+        initGame(false);
+    }
 
+    private void initGame(boolean isNewGame) {
+        if (isNewGame) {
+            mScore = 0;
+        } else {
+            // 读取存档，读取分数
+            String scoreKey = Extra.Key.getScoreKey(mMode);
+            mScore = PreferencesUtils.getLong(getContext(), scoreKey, 0);
+        }
 
         // 获得最高分
         String bestScoreKey = Extra.Key.getBestScoreKey(mMode);
@@ -189,11 +197,17 @@ public class GameView extends BaseSurfaceViewFPS {
                         .setH(0.6F * dotWH)
                         .centerTo(cX, cY)
                         .build();
-                // 读取存档，读取每个格子的数值
-                String gridNumberKey = Extra.Key.getGridNumberKey(mMode, x, y);
-                long savedNumber = PreferencesUtils.getLong(getContext(), gridNumberKey, 0);
+                long number;
+                long randomNumber = ColorExtra.getRandomNumber(16);
+                if (isNewGame) {
+                    number = randomNumber;
+                } else {
+                    // 读取存档，读取每个格子的数值
+                    String gridNumberKey = Extra.Key.getGridNumberKey(mMode, x, y);
+                    long savedNumber = PreferencesUtils.getLong(getContext(), gridNumberKey, 0);
+                    number = savedNumber > 0 ? savedNumber : randomNumber;
+                }
 
-                long number = savedNumber > 0 ? savedNumber : ColorExtra.getRandomNumber(8);
                 int color = ColorExtra.getRandomColor(getContext(), number);
                 dot.reset(number, color);
 
@@ -332,7 +346,7 @@ public class GameView extends BaseSurfaceViewFPS {
         }
 
         return true;
-//        return super.onTouchEvent(event);
+        //        return super.onTouchEvent(event);
     }
 
     private void updateScoreAndBestScore(Context context) {
